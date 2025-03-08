@@ -29,9 +29,11 @@ class CustomLogoutView(LogoutView):
     template_name = 'relationship_app/logout.html'
 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = UserCreationForm()
     template_name = 'relationship_app/register.html'
     success_url = reverse_lazy('login')
+
+    
 
 # Role checking functions
 def admin_check(user):
