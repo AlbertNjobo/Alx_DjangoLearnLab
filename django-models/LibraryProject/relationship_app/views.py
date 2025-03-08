@@ -5,7 +5,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import permission_required, user_passes_test
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from .models import Book, Library, UserProfile
+from .models import Book, UserProfile
+from .models import Library
 from .forms import BookForm
 
 # Function-based views
