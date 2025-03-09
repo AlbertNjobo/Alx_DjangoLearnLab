@@ -23,7 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)vov5pvf-h7e3_w4#+%++*eqzx3z0o+$h=_vg#7z-&3#&bsner'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+# HTTPS and Cookie Security
+SECURE_BROWSER_XSS_FILTER = True  # Enable browser XSS protection
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
+SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP to HTTPS (in production)
+
+# Content Security Policy (basic configuration)
+CSP_DEFAULT_SRC = ("'self'",)  # Only allow resources from same origin
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # Allow inline styles (if needed)
+CSP_SCRIPT_SRC = ("'self'",)  # Only allow scripts from same origin
+
 
 ALLOWED_HOSTS = []
 
@@ -38,6 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bookshelf',
+    'csp',
+    'bookshelf.apps.BookshelfConfig',
     'relationship_app',
 ]
 
@@ -123,3 +139,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

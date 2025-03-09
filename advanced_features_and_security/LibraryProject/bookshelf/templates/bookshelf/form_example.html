@@ -1,0 +1,17 @@
+<!-- LibraryProject/bookshelf/templates/bookshelf/form_example.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Book</title>
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+</head>
+<body>
+    <h1>Add a New Book</h1>
+    <form method="post">
+        {% csrf_token %} <!-- Security: CSRF protection -->
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

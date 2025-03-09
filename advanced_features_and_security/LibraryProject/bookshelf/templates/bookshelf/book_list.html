@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <!-- Security: Prevent MIME type sniffing -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <!-- Security: Basic XSS protection -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+</head>
+<body>
+    <h1>Book List</h1>
+    <ul>
+    {% for book in books %}
+        <li>{{ book.title|escape }} by {{ book.author|escape }} (ISBN: {{ book.isbn|escape }})</li>
+    {% empty %}
+        <li>No books available.</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
