@@ -38,6 +38,20 @@ CSP_DEFAULT_SRC = ("'self'",)  # Only allow resources from same origin
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # Allow inline styles (if needed)
 CSP_SCRIPT_SRC = ("'self'",)  # Only allow scripts from same origin
 
+# HTTPS Settings
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
+SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year (31536000 seconds)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allow site to be preloaded in browsers' HSTS lists
+
+# Secure Cookies
+SESSION_COOKIE_SECURE = True  # Only send session cookies over HTTPS
+CSRF_COOKIE_SECURE = True  # Only send CSRF cookies over HTTPS
+
+# Additional Security Headers
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking by disallowing framing
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME-type sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enable browser XSS filter
 
 ALLOWED_HOSTS = []
 
