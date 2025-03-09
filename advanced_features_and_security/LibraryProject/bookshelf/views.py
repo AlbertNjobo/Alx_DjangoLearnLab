@@ -34,8 +34,8 @@ def article_create(request):
             article.save()
             return redirect('article_list')
     else:
-        form = ArticleForm()
-    return render(request, 'articles/create.html', {'form': form})
+        form = BookForm()
+    return render(request, 'bookshelf/form_example.html', {'form': form})
 
 @permission_required('bookshelf.can_edit', raise_exception=True)
 def article_edit(request, pk):

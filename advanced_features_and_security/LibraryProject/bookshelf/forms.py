@@ -18,3 +18,8 @@ class BookForm(forms.ModelForm):
         if not isbn.isdigit() or len(isbn) != 13:
             raise forms.ValidationError("ISBN must be a 13-digit number")
         return isbn
+
+# Add this to forms.py
+class ExampleForm(forms.Form):
+    name = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(required=True)
