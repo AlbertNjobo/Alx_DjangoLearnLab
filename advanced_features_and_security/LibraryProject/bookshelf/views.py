@@ -2,8 +2,21 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseForbidden
 from .models import Article
+from .models import Book
 from .forms import ArticleForm
 
+@permission_required('bookshelf.can_view', raise_exception=True)
+def book_list(request):
+    """
+    Display a list of all books in the library.
+    Requires 'can_view' permission from the Book model.
+    """
+    books = Book.objects.all()
+    context = {
+        'books': books,
+        'title': 'Library Book List'
+    }
+    return render(request, 'bookshelf/book_list.html', context)
 @permission_required('bookshelf.can_view', raise_exception=True)
 def article_list(request):
     """View to list all articles"""

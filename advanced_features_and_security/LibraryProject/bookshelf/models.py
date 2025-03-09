@@ -77,9 +77,21 @@ class Article(models.Model):
         return self.title
 
 class Book(models.Model):
+
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
-    publication_year = models.IntegerField()
+    isbn = models.CharField(max_length=13, unique=True)
+    published_date = models.DateField()
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        permissions = [
+            ("can_view", "Can view books"),
+            ("can_create", "Can create books"),
+            ("can_edit", "Can edit books"),
+            ("can_delete", "Can delete books"),
+        ]
 
     def __str__(self):
-        return f"{self.title} by {self.author} ({self.publication_year})"
+        return self.title
