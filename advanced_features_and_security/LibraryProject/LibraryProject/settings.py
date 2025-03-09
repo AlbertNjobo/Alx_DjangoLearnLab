@@ -43,6 +43,7 @@ SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
 SECURE_HSTS_SECONDS = 31536000  # Enforce HTTPS for 1 year (31536000 seconds)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
 SECURE_HSTS_PRELOAD = True  # Allow site to be preloaded in browsers' HSTS lists
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')  # Trust proxy's HTTPS indication
 
 # Secure Cookies
 SESSION_COOKIE_SECURE = True  # Only send session cookies over HTTPS
