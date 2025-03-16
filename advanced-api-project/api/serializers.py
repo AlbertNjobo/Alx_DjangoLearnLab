@@ -12,7 +12,7 @@ class BookSerializer(serializers.ModelSerializer):
             Check that the start is before the stop.
             """
             if data['publication_date'] > datetime.date.today():
-                raise serializers.ValidationError("The publication date must be in the past.")]:
+                raise serializers.ValidationError("The publication date must be in the past.")
                
             return data
 
