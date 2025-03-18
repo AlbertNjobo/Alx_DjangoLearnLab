@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'api',  # Ensure the api app is listed here
     'rest_framework',
     'rest_framework.authtoken',  # Ensure this is included
+    'django_filters',  # Add this for filtering support
 ]
 
 MIDDLEWARE = [
@@ -127,10 +128,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # Add token authentication
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Default permission: authenticated users only
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',  # Remove the leading space
+        'rest_framework.filters.OrderingFilter',
     ],
 }
