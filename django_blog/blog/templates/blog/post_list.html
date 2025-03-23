@@ -4,15 +4,14 @@
     <title>Blog Posts</title>
 </head>
 <body>
-    <h1>Blog Posts</h1>
+    <h1>All Posts</h1>
     <ul>
         {% for post in posts %}
             <li>
-                <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a> by {{ post.author }}
-                <small>Published on {{ post.published_date }}</small>
+                <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a> - {{ post.content|truncatewords:20 }}
             </li>
         {% endfor %}
     </ul>
-    <a href="{% url 'post-create' %}">Create New Post</a>
+    <a href="{% url 'post-create' %}" class="btn btn-primary">Create New Post</a>
 </body>
 </html>
