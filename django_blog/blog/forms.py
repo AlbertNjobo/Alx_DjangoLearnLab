@@ -1,9 +1,14 @@
 from django import forms
-from .models import Post, Tag
-from .models import Comment
+from django.forms import widgets
+from taggit.forms import TagWidget
+from .models import Post, Comment
 
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(required=False, help_text="Comma-separated tags")
+    tags = forms.CharField(
+        required=False,
+        widget=TagWidget(attrs={'placeholder': 'Comma-separated tags'}),
+        help_text="Add tags separated by commas."
+    )
 
     class Meta:
         model = Post
