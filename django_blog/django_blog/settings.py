@@ -35,10 +35,11 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',  # Ensure this is present
+    'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
     'rest_framework',
+    'taggit',  # Add this line
 ]
 
 MIDDLEWARE = [
