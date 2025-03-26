@@ -8,6 +8,10 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <div>
+            <label for="id_tags">Tags:</label>
+            <input type="text" name="tags" id="id_tags" placeholder="Comma-separated tags">
+        </div>
         <button type="submit" class="btn btn-primary">{% if post %}Update{% else %}Create{% endif %}</button>
     </form>
     <a href="{% url 'post-list' %}" class="btn btn-secondary">Cancel</a>

@@ -37,5 +37,14 @@
         {{ form.as_p }}
         <button type="submit">Submit</button>
     </form>
+
+    <div>
+        <h4>Tags:</h4>
+        <ul>
+            {% for tag in post.tags.all %}
+                <li><a href="{% url 'posts-by-tag' tag.name %}">{{ tag.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
