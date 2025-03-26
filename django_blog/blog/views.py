@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth.decorators import login_required
@@ -7,7 +7,8 @@ from django import forms
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from .models import Post
+from .models import Post, Comment
+from .forms import CommentForm
 
 # Extend UserCreationForm to include email
 class CustomUserCreationForm(UserCreationForm):
@@ -26,7 +27,7 @@ def register_view(request):
             return redirect('profile')
     else:
         form = CustomUserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'blog/register.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -37,7 +38,7 @@ def login_view(request):
             return redirect('profile')
     else:
         form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'blog/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
@@ -45,7 +46,7 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'registration/profile.html', {'user': request.user})
+    return render(request, 'blog/profile.html', {'user': request.user})
 
 @login_required
 def edit_profile_view(request):
@@ -56,7 +57,7 @@ def edit_profile_view(request):
             return redirect('profile')
     else:
         form = UserChangeForm(instance=request.user)
-    return render(request, 'registration/edit_profile.html', {'form': form})
+    return render(request, 'blog/edit_profile.html', {'form': form})
 
 class PostListView(ListView):
     model = Post
@@ -98,3 +99,41 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
+
+@login_required
+def add_comment_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect('post-detail', pk=post_id)
+    else:
+        form = CommentForm()
+    return render(request, 'blog/comment_form.html', {'form': form})
+
+@login_required
+def edit_comment_view(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user != comment.author:
+        return redirect('post-detail', pk=comment.post.id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('post-detail', pk=comment.post.id)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'blog/comment_form.html', {'form': form})
+
+@login_required
+def delete_comment_view(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.user == comment.author:
+        post_id = comment.post.id
+        comment.delete()
+        return redirect('post-detail', pk=post_id)
+    return redirect('post-detail', pk=comment.post.id)
