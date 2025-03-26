@@ -178,3 +178,17 @@ def posts_by_tag_view(request, tag_name):
     tag = get_object_or_404(Tag, name=tag_name)
     posts = tag.posts.all()
     return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag': tag})
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'  # Specify your template
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_name = self.kwargs.get('tag_slug')
+        return Post.objects.filter(tags__name__iexact=tag_name).distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = get_object_or_404(Tag, name=self.kwargs.get('tag_slug'))
+        return context
