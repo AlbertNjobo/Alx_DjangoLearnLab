@@ -1,7 +1,10 @@
 # accounts/serializers.py
 from rest_framework import serializers
-from .models import CustomUser
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     # Explicitly declared fields
@@ -9,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True, label="Confirm Password")
 
     class Meta:
-        model = CustomUser
+        model = User
         # Ensure 'password' and 'password2' are included in this list
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'password', 'password2')
         read_only_fields = ('id',) # id is implicitly read-only on create anyway
@@ -21,24 +24,28 @@ class UserSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        # Create the user instance
-        user = CustomUser.objects.create(
+        # Remove password2 as we don't need it for user creation
+        validated_data.pop('password2', None)
+        password = validated_data.pop('password')
+        
+        # Create user using create_user method
+        user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', ''),
-            bio=validated_data.get('bio', None),
-            profile_picture=validated_data.get('profile_picture', None)
+            **{k: v for k, v in validated_data.items() if k not in ['username', 'email']}
         )
-        # Hash the password
-        user.set_password(validated_data['password'])
+        user.set_password(password)
         user.save()
+        
+        # Create token for the user
+        Token.objects.create(user=user)
+        
         return user
 
-# --- ProfileSerializer likely remains the same ---
+# --- ProfileSerializer remains the same ---
 class ProfileSerializer(serializers.ModelSerializer):
     """Serializer for viewing/updating user profile (excludes password)"""
     class Meta:
-        model = CustomUser
+        model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture')
         read_only_fields = ('id', 'username', 'email')
