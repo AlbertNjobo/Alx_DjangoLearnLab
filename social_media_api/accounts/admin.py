@@ -4,7 +4,7 @@ from .models import CustomUser
 
 class UserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
-        (None, {'fields': ('bio', 'profile_picture')}),
+        (None, {'fields': ('bio', 'profile_picture', 'following')}),
     )
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         (None, {'fields': ('bio', 'profile_picture')}),

@@ -2,6 +2,11 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 from .models import CustomUser
 from .serializers import UserSerializer, ProfileSerializer
 
@@ -48,5 +53,45 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user #Get the current logged-in user
+
+class CustomLoginView(APIView):
+    """
+    Custom login view to handle both GET and POST requests.
+    """
+    def get(self, request, *args, **kwargs):
+        # Provide instructions for using the login endpoint
+        return Response({
+            "detail": "Send a POST request with 'username' and 'password' to obtain an auth token.",
+            "example_body": {
+                "username": "your_username",
+                "password": "your_password"
+            }
+        }, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        # Handle login and token generation
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(username=username, password=password)
+
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+class FollowView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        target_user = get_object_or_404(CustomUser, id=user_id)
+        if target_user == request.user:
+            return Response({"error": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+        request.user.following.add(target_user)
+        return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
+
+    def delete(self, request, user_id):
+        target_user = get_object_or_404(CustomUser, id=user_id)
+        request.user.following.remove(target_user)
+        return Response({"detail": f"You have unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
 
 # Create your views here.

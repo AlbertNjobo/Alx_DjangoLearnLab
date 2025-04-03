@@ -1,7 +1,7 @@
 # posts/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PostViewSet, CommentViewSet # Ensure .views can be imported
+from .views import PostViewSet, CommentViewSet, FeedView # Ensure .views can be imported
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -23,5 +23,6 @@ urlpatterns = [
         'delete': 'destroy'
     }), name='comment-detail'),
 
-
+    # Add a route for the feed endpoint
+    path('feed/', FeedView.as_view(), name='feed'),
 ]

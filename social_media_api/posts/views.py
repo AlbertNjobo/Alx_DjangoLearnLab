@@ -2,10 +2,13 @@ from django.shortcuts import render
 from rest_framework import viewsets,permissions,pagination,filters, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
+
 # Create your views here.
 
 #-- Custom Pagination Class ---
@@ -20,43 +23,14 @@ class PostViewSet(viewsets.ModelViewSet):
     """ViewSet for managing posts"""
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = CustomPagination
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'content', 'author__username']
-    ordering_fields = ['created_at', 'updated_at', 'title']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
+        # Pass the author explicitly
         serializer.save(author=self.request.user)
 
-    def get_serializer_context(self):
-        context =  super().get_serializer_context()
-        context .update({
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        })
-        return context
-    
-    @action(detail=True, methods=['get', 'post'], permission_classes=[permissions.IsAuthenticated], url_path='comments')
-    def list_create_comments(self, request, pk = None):
-        """List or create comments for a post"""
-        post = self.get_object()
-        if request.method == 'GET':
-            comments = Comments.objects.filter(post=post)
-            page = self.paginate_queryset(comments)
-            if page is not None:
-                serializer = CommentSerializer(page, many=True, context={'request': request, 'post': post})
-                return self.get_paginated_response(serializer.data)
-            serializer = CommentSerializer(comments, many=True, context={'request': request, 'post': post})
-            return Response(serializer.data)
-        elif request.method == 'POST':
-            serializer = CommentSerializer(data=request.data, context={'request': request, 'post': post})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+#-- Comment ViewSet ---
+
 class CommentViewSet(viewsets.ModelViewSet):
     """ViewSet for managing comments"""
     queryset = Comment.objects.all()
@@ -108,3 +82,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         elif request.method == 'DELETE':
             comment.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+#-- Feed View ---
+
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        followed_users = request.user.following.all()
+        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -29,19 +29,12 @@ class CommentSerializer(serializers.ModelSerializer):
         
 class PostSerializer(serializers.ModelSerializer):
     """Serializer for posts"""
-    author = AuthorSerializer(read_only=True)
-    comments = CommentSerializer(many=True, read_only=True)
-    comment_count = serializers.SerializerMethodField(read_only = True)
+    author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Post
-        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at', 'comments', 'comment_count')
-        read_only_fields = ('id', 'author', 'created_at', 'updated_at', 'comments', 'comment_count')
+        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at')
 
-        def get_comment_count(self, obj):
-            return obj.comments.count()
-        
     def create(self, validated_data):
-        author = self.context['request'].user
-        post = Post.objects.create(author=author, **validated_data)
-        return post
+        # Remove 'author' from validated_data as it is passed explicitly
+        return Post.objects.create(**validated_data)
