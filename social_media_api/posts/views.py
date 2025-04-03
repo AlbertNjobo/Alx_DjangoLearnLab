@@ -1,9 +1,8 @@
 from django.shortcuts import render
-from rest_framework import viewsets,permissions,pagination,filters, status
+from rest_framework import viewsets, permissions, pagination, filters, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
 from .models import Post, Comment, Like
 from django.db.models import Count
 from .serializers import PostSerializer, CommentSerializer
@@ -34,8 +33,8 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
-        post = get_object_or_404(Post, pk=pk)
-        like, created = Like.objects.get_or_create(post=post, user=request.user)
+        post = generics.get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
         if created:
             # Generate a notification for the post author
             Notification.objects.create(
@@ -49,7 +48,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def unlike(self, request, pk=None):
-        post = get_object_or_404(Post, pk=pk)
+        post = generics.get_object_or_404(Post, pk=pk)
         like = Like.objects.filter(post=post, user=request.user).first()
         if like:
             like.delete()
