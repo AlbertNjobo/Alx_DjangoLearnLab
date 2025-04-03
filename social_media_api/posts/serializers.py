@@ -30,10 +30,11 @@ class CommentSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     """Serializer for posts"""
     author = serializers.ReadOnlyField(source='author.username')
+    like_count = serializers.IntegerField(source='likes.count', read_only=True)
 
     class Meta:
         model = Post
-        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at')
+        fields = ('id', 'author', 'title', 'content', 'created_at', 'updated_at', 'like_count')
 
     def create(self, validated_data):
         # Remove 'author' from validated_data as it is passed explicitly

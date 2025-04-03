@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Post, Comment
+from .models import Post, Comment, Like
+from django.db.models import Count
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import IsAuthenticated
@@ -28,6 +29,24 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Pass the author explicitly
         serializer.save(author=self.request.user)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def like(self, request, pk=None):
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(post=post, user=request.user)
+        if created:
+            # Generate notification logic here
+            return Response({'message': 'Post liked'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Already liked'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def unlike(self, request, pk=None):
+        post = get_object_or_404(Post, pk=pk)
+        like = Like.objects.filter(post=post, user=request.user).first()
+        if like:
+            like.delete()
+            return Response({'message': 'Post unliked'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Not liked yet'}, status=status.HTTP_400_BAD_REQUEST)
 
 #-- Comment ViewSet ---
 

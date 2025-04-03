@@ -25,4 +25,8 @@ urlpatterns = [
 
     # Add a route for the feed endpoint
     path('feed/', FeedView.as_view(), name='feed'),
+
+    # Add routes for liking and unliking posts
+    path('posts/<int:pk>/like/', PostViewSet.as_view({'post': 'like'}), name='post-like'),
+    path('posts/<int:pk>/unlike/', PostViewSet.as_view({'post': 'unlike'}), name='post-unlike'),
 ]
