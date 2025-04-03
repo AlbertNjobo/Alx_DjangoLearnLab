@@ -90,6 +90,8 @@ WSGI_APPLICATION = 'social_media_api.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default='postgres://user:password@localhost/dbname')
 }
+# Ensure the PORT is set for the database connection
+DATABASES['default']['PORT'] = DATABASES['default'].get('PORT', '5432')
 
 
 # Password validation
