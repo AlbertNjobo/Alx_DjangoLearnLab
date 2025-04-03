@@ -9,6 +9,8 @@ from django.db.models import Count
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import IsAuthenticated
+from notifications.models import Notification  # Import Notification model
+from django.contrib.contenttypes.models import ContentType
 
 # Create your views here.
 
@@ -35,7 +37,13 @@ class PostViewSet(viewsets.ModelViewSet):
         post = get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(post=post, user=request.user)
         if created:
-            # Generate notification logic here
+            # Generate a notification for the post author
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target=post,
+            )
             return Response({'message': 'Post liked'}, status=status.HTTP_201_CREATED)
         return Response({'message': 'Already liked'}, status=status.HTTP_200_OK)
 
