@@ -4,20 +4,20 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 
-User = get_user_model()
+CustomUser = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     # Add a basic CharField to satisfy the check
-    test_field = serializers.CharField()
+   # test_field = serializers.CharField()
     
     # Explicitly declared fields
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True, label="Confirm Password")
 
     class Meta:
-        model = User
+        model = CustomUser
         # Ensure 'password' and 'password2' are included in this list
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'password', 'password2', 'test_field')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 'password', 'password2')
         read_only_fields = ('id',) # id is implicitly read-only on create anyway
 
     def validate(self, attrs):
@@ -49,6 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     """Serializer for viewing/updating user profile (excludes password)"""
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture')
         read_only_fields = ('id', 'username', 'email')
