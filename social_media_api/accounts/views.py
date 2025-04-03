@@ -79,7 +79,8 @@ class CustomLoginView(APIView):
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-class FollowView(APIView):
+class FollowUserView(generics.GenericAPIView):
+    """API view to follow a user."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
@@ -89,7 +90,11 @@ class FollowView(APIView):
         request.user.following.add(target_user)
         return Response({"detail": f"You are now following {target_user.username}."}, status=status.HTTP_200_OK)
 
-    def delete(self, request, user_id):
+class UnfollowUserView(generics.GenericAPIView):
+    """API view to unfollow a user."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
         target_user = get_object_or_404(CustomUser, id=user_id)
         request.user.following.remove(target_user)
         return Response({"detail": f"You have unfollowed {target_user.username}."}, status=status.HTTP_200_OK)
